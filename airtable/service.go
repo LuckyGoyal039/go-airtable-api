@@ -4,19 +4,27 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 )
 
 const baseURL = "https://api.airtable.com/v0/"
-const token = "Bearer pat1EaMfMyRi6scoE.97d36d16f22098570d408c2fe24ab2d3cd4205ab36db4ab427008698bf22a374"
+
+func getToken() string {
+	t := os.Getenv("AIRTABLE_TOKEN")
+	if t == "" {
+		panic("AIRTABLE_TOKEN not set")
+	}
+	return "Bearer " + t
+}
 
 type AirtableService struct{}
 
 func (s *AirtableService) GetAirtableData(w http.ResponseWriter, r *http.Request, baseId string, tableName string) {
 	url := fmt.Sprintf("%s%s/%s", baseURL, baseId, tableName)
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", getToken())
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -32,7 +40,7 @@ func (s *AirtableService) GetAirtableData(w http.ResponseWriter, r *http.Request
 func (s *AirtableService) GetAirtableRecord(w http.ResponseWriter, r *http.Request, baseId string, tableName string, recordId string) {
 	url := fmt.Sprintf("%s%s/%s/%s", baseURL, baseId, tableName, recordId)
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", getToken())
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -52,7 +60,7 @@ func (s *AirtableService) GetRecord(ctx echo.Context, baseID string, tableName s
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to build request"})
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", getToken())
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -76,7 +84,7 @@ func (s *AirtableService) ListRecords(ctx echo.Context, baseID string, tableName
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create request"})
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", getToken())
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {

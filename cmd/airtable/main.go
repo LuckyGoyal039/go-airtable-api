@@ -6,10 +6,15 @@ import (
 
 	"github.com/LuckyGoyal039/airtable-repo/airtable"
 	airtablegen "github.com/LuckyGoyal039/airtable-repo/api/airtable" // update this to actual import path
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
 	e := echo.New()
 	airtableService := &airtable.AirtableService{}
 
