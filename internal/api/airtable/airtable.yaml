@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: Airtable Adapter API
+  version: 1.0.0
+
+paths:
+  /airtable/{baseID}/{tableName}:
+    get:
+      summary: List all records from a given table
+      operationId: listRecords
+      parameters:
+        - name: baseID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tableName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRecordsResponse'
+        '401':
+          description: Unauthorized
+
+  /airtable/{baseID}/{tableName}/{recordID}:
+    get:
+      summary: Get a single record by ID
+      operationId: getRecord
+      parameters:
+        - name: baseID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tableName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: recordID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single record details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Record not found
+
+components:
+  schemas:
+    RecordResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        fields:
+          type: object
+        createdTime:
+          type: string
+          format: date-time
+      required:
+        - id
+        - fields
+        - createdTime
+
+    ListRecordsResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecordResponse'

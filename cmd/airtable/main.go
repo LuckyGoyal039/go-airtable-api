@@ -1,71 +1,25 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"log"
 	"net/http"
+
+	"github.com/LuckyGoyal039/airtable-repo/airtable"
+	airtablegen "github.com/LuckyGoyal039/airtable-repo/api/airtable" // update this to actual import path
+	"github.com/labstack/echo/v4"
 )
 
-const airtableBaseURL = "https://api.airtable.com/v0/"
-const airtableToken = "pat1EaMfMyRi6scoE.97d36d16f22098570d408c2fe24ab2d3cd4205ab36db4ab427008698bf22a374"
-
 func main() {
-	// Simulate input
-	baseID := "appOsM0fcKAqWmxca"
-	tableName := "Contacts"
-	recordID := "recp6PGKakewf9IpW" // leave empty for list, or set to an ID like "rec123..."
+	e := echo.New()
+	airtableService := &airtable.AirtableService{}
 
-	if recordID == "" {
-		listRecords(baseID, tableName)
-	} else {
-		getRecord(baseID, tableName, recordID)
+	// Register handlers from generated OpenAPI code
+	airtablegen.RegisterHandlers(e, airtableService)
+
+	log.Println("Server running at http://localhost:8080")
+	if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
 	}
 }
 
-func listRecords(baseID, tableName string) {
-	url := fmt.Sprintf("%s%s/%s", airtableBaseURL, baseID, tableName)
-	fmt.Println("GET:", url)
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		fmt.Println("Request creation failed:", err)
-		return
-	}
-	req.Header.Set("Authorization", "Bearer "+airtableToken)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("HTTP request failed:", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("Response:")
-	fmt.Println(string(body))
-}
-
-func getRecord(baseID, tableName, recordID string) {
-	url := fmt.Sprintf("%s%s/%s/%s", airtableBaseURL, baseID, tableName, recordID)
-	fmt.Println("GET:", url)
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		fmt.Println("Request creation failed:", err)
-		return
-	}
-	req.Header.Set("Authorization", "Bearer "+airtableToken)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("HTTP request failed:", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("Response:")
-	fmt.Println(string(body))
-}
+// sample api: http://localhost:8080/airtable/appOsM0fcKAqWmxca/Contacts

@@ -1,0 +1,12 @@
+set -euo pipefail
+
+mkdir -p api/airtable
+
+go run -mod=mod github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest \
+  --generate "types,server" \
+  --package api \
+  internal/api/airtable/airtable.yaml \
+  > api/airtable/airtablegencode.go
+
+
+echo "✅ generated api/airtable/airtablegencode.go"
